@@ -1,24 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('./verifyToken');
-
+const AlbumController = require('../controllers/AlbumController');
 //Geting all
-router.get('/',verifyToken, (req,res)=>{
-    res.send('Hello word')
-})
+// router.get('/',verifyToken, (req,res)=>{
+//     res.send('Hello word')
+// })
+router.get('/', AlbumController.getAll)
 //Geting one
-router.get('/:id', (req,res)=>{
-    res.send(req.params)
-})
+router.get('/:id', AlbumController.getByIdAlbum)
+
+
 //creating one
-router.post('/', (req,res)=>{
-
-})
+router.post('/', AlbumController.createAlbum)
 //update one
-router.patch('/', (req,res)=>{
+router.patch('/', AlbumController.updateAlbum);
 
-})
-router.delete('/:id', (req,res)=>{
-
-})
-module.exports = router
+router.delete('/:id', AlbumController.deleteAlbum);
+module.exports = router;
