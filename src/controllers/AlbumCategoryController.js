@@ -12,7 +12,13 @@ class AlbumCategoryController {
                         from: 'albums',
                         as : 'albums',
                         let : {idCategory: "$_id"},
-                        pipeline: [{$match: {$expr: {$eq: ['$idCategory','$$idCategory']}}}]
+                        pipeline: [{$match: 
+                            {$expr: 
+                            {$eq: ['$idCategory','$$idCategory']}
+                    }
+
+                    }
+                    ]
                     }
                 }
             ]).exec();

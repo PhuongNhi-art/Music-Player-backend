@@ -26,21 +26,23 @@ const SongSchema = mongoose.Schema({
         type: Number,
         default: 0,
     },
-    artists: {
+    idArtist: {
         type: ObjectId,
         max: 255,
         default: null,
+        ref : 'Artist',
     },
     idType: {
         type: ObjectId,
         max: 255,
         default: null,
-        // ref : 'Type',
+        ref : 'Type',
     },
     idAlbum: {
         type: ObjectId,
         max: 255,
         default: null,
+        ref: 'Album'
     },
     createdAt: {
         type: Number,

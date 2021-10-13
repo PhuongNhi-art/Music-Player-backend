@@ -1,9 +1,19 @@
 require('dotenv').config();
 const Song = require('../models/SongModel');
+const Artist = require('../models/ArtistModel');
+const ObjectId = require('mongoose').Types.ObjectId
 class SongController {
+    
     async getAll(req, res) {
         try {
-            const songs = await Song.find();
+            let songs = await Song.find()
+            .populate('idArtist', '_id name imageUri')
+            // .populate("lastMessage").populate({
+            //     path: 'last_msg_id',
+            //     populate: {path: 'from'}
+            // }).populate("admin", '_id username email');
+            
+            // const songs = await Song.find();
             return res.json({
                 message: songs
             })
@@ -17,9 +27,23 @@ class SongController {
     async getByIdSong(req, res) {
         try {
             const {id} = req.params;
-            const song = await Song.findById(id);
+            // const song = await Song.findById(id);
+            let song = await Song.findById(id)
+            .populate('idArtist', '_id name imageUri')
+            let previousSong = await Song.findOne({"idAlbum": song.idAlbum,_id: {$lt: id}}).sort({_id: -1})
+            if (previousSong==null){
+                previousSong = await Song.findOne({'idAlbum': song.idAlbum,_id: {$gt: id}}).sort({_id: 1})
+            }
+            let nextSong = await Song.findOne({"idAlbum": song.idAlbum,_id: {$gt: id}}).sort({_id: 1})
+            if (nextSong==null){
+                nextSong = await Song.findOne({"idAlbum": song.idAlbum,_id: {$lt: id}}).sort({_id: -1})
+            }
+            if (previousSong==null && nextSong==null){
+                previousSong= await Song.findById(id).populate('idArtist', '_id name imageUri')
+                nextSong = await Song.findById(id).populate('idArtist', '_id name imageUri')
+            }
             return res.json({
-                message: song
+                message: song, previousSong,nextSong
             })
         }
         catch (e) {
@@ -50,7 +74,7 @@ class SongController {
                 uri: req.body.uri,
                 description: req.body.description,
                 numberOfLikes: req.body.numberOfLikes,
-                artists: req.body.artists,
+                idArtist: req.body.idArtist,
                 idType: req.body.idType,
                 idAlbum: req.body.idAlbum,
             });

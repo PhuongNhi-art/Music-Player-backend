@@ -1,5 +1,6 @@
 require('dotenv').config();
 const Album = require('../models/AlbumModel');
+const Song = require('../models/SongModel');
 const ObjectId = require('mongoose').Types.ObjectId
 class AlbumController {
     async getAll(req, res) {
@@ -39,6 +40,8 @@ class AlbumController {
                     }
                 },
             ]).exec();
+            // let album = await albumWithSong.find()
+            // .populate('idArtist', '_id name imageUri')
             return res.json({
                 message: albumWithSong
             })
