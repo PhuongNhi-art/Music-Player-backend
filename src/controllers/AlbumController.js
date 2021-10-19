@@ -23,15 +23,15 @@ class AlbumController {
             // return res.json({
             //     message: album
             // })
-            const {id} = req.params;
+            const { id } = req.params;
             let albumWithSong = await Album.aggregate([
                 {
-                    
+
                     $lookup: {
                         from: 'songs',
-                        as : 'songs',
-                        let : {idAlbum: "$_id"},
-                        pipeline: [{$match: {$expr: {$eq: ['$idAlbum','$$idAlbum']}}}]
+                        as: 'songs',
+                        let: { idAlbum: "$_id" },
+                        pipeline: [{ $match: { $expr: { $eq: ['$idAlbum', '$$idAlbum'] } } }]
                     }
                 },
                 {
@@ -52,10 +52,30 @@ class AlbumController {
             })
         }
     }
+    async getTheFirstSong(req, res) {
+        const {idAlbum} = req.params;
+        let song = await Song.findOne({ "idAlbum":idAlbum }).sort({ _id: 1 }).populate('idArtist', '_id name imageUri')
+        let previousSong = await Song.findOne({"idAlbum": idAlbum,_id: {$lt: song.id}}).sort({_id: -1}).populate('idArtist', '_id name imageUri')
+        if (previousSong==null){
+            previousSong = await Song.findOne({'idAlbum': idAlbum}).sort({_id: -1}).populate('idArtist', '_id name imageUri')
+        }
+        let nextSong = await Song.findOne({ "idAlbum": idAlbum, _id: { $gt: song.id } }).sort({ _id: 1 }).populate('idArtist', '_id name imageUri')
+        if (nextSong == null) {
+            nextSong = await Song.findOne({ 'idAlbum': idAlbum }).sort({ _id: 1 }).populate('idArtist', '_id name imageUri')
+        }
+        if (previousSong==null && nextSong==null){
+            previousSong= await Song.findById(id).populate('idArtist', '_id name imageUri')
+            nextSong = await Song.findById(id).populate('idArtist', '_id name imageUri')
+        }
+        return res.json({
+            message: song
+            , previousSong, nextSong
+        })
+    }
     async getByIdCategory(req, res) {
         try {
-            const {idCategory} = req.params;
-            const album = await Album.find({"idCategory": {"$in": idCategory}}).select();
+            const { idCategory } = req.params;
+            const album = await Album.find({ "idCategory": { "$in": idCategory } }).select();
             return res.json({
                 message: album
             })
@@ -66,7 +86,7 @@ class AlbumController {
             })
         }
     }
-    async createAlbum(req, res){
+    async createAlbum(req, res) {
         try {
             const album = new Album({
                 name: req.body.name,
@@ -88,8 +108,8 @@ class AlbumController {
     }
     async deleteAlbum(req, res) {
         try {
-            const {id} = req.params;
-            const removedAlbum = await Album.remove({_id: id});
+            const { id } = req.params;
+            const removedAlbum = await Album.remove({ _id: id });
             return res.json({
                 message: 'Delete successful'
             })
@@ -101,10 +121,10 @@ class AlbumController {
     }
     async updateAlbum(req, res) {
         try {
-            const {id} = req.params;
-            const updateAlbum = await Album.updateOne({_id: id})
+            const { id } = req.params;
+            const updateAlbum = await Album.updateOne({ _id: id })
             return res.json({
-                message:  updateAlbum
+                message: updateAlbum
             })
         } catch (e) {
             return res.status(404).json({

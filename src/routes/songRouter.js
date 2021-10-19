@@ -8,7 +8,7 @@ const SongController = require('../controllers/SongController');
 router.get('/', SongController.getAll)
 //Geting one
 router.get('/:id', SongController.getByIdSong)
-
+router.get('/search/:key', SongController.search)
 
 //creating one
 router.post('/', SongController.createSong)

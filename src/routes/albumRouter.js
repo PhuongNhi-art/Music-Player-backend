@@ -10,7 +10,7 @@ router.get('/', AlbumController.getAll)
 //Geting one
 router.get('/:id', AlbumController.getByIdAlbum)
 
-
+router.get('/getfirst/:idAlbum', AlbumController.getTheFirstSong)
 //creating one
 router.post('/', AlbumController.createAlbum)
 //update one

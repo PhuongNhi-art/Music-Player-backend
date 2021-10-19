@@ -1,5 +1,6 @@
 require('dotenv').config();
 const Song = require('../models/SongModel');
+const Album = require('../models/AlbumModel');
 const Artist = require('../models/ArtistModel');
 const ObjectId = require('mongoose').Types.ObjectId
 class SongController {
@@ -24,6 +25,22 @@ class SongController {
             })
         }
     }
+    async search(req, res) {
+        try {
+            const {key} = req.params;
+            const songs = await Song.find({ name: { $regex: key ,$options:'i'} }).populate('idArtist', '_id name imageUri');
+            const albums = await Album.find({ name: { $regex: key,$options:'i' } });
+            
+            const artists = await Artist.find({ name: { $regex: key,$options:'i' } });
+            return res.json({
+                message: {songs:songs, albums: albums, artists: artists}
+            })
+        } catch (e) {
+            return res.status(404).json({
+                message: e.message
+            })
+        }
+    }
     async getByIdSong(req, res) {
         try {
             const {id} = req.params;
@@ -32,11 +49,11 @@ class SongController {
             .populate('idArtist', '_id name imageUri')
             let previousSong = await Song.findOne({"idAlbum": song.idAlbum,_id: {$lt: id}}).sort({_id: -1})
             if (previousSong==null){
-                previousSong = await Song.findOne({'idAlbum': song.idAlbum,_id: {$gt: id}}).sort({_id: 1})
+                previousSong = await Song.findOne({'idAlbum': song.idAlbum}).sort({_id: -1})
             }
             let nextSong = await Song.findOne({"idAlbum": song.idAlbum,_id: {$gt: id}}).sort({_id: 1})
             if (nextSong==null){
-                nextSong = await Song.findOne({"idAlbum": song.idAlbum,_id: {$lt: id}}).sort({_id: -1})
+                nextSong = await Song.findOne({'idAlbum': song.idAlbum}).sort({_id: 1})
             }
             if (previousSong==null && nextSong==null){
                 previousSong= await Song.findById(id).populate('idArtist', '_id name imageUri')
