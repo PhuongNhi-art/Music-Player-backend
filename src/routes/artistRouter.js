@@ -7,7 +7,7 @@ const ArtistController = require('../controllers/ArtistController');
 // })
 router.get('/', ArtistController.getAll)
 //Geting one
-// router.get('/:id', SongController.getByIdSong)
+router.get('/:id', ArtistController.getByIdArtist)
 
 
 //creating one

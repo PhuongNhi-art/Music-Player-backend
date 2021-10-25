@@ -17,10 +17,25 @@ class ArtistController {
     }
     async getByIdArtist(req, res) {
         try {
-            const {idArtist} = req.params;
-            const type = await Artist.find({"idArtist": {"$in": idArtist}}).select();
+            const { id } = req.params;
+            let artist = await Artist.aggregate([
+                {
+
+                    $lookup: {
+                        from: 'songs',
+                        as: 'songs',
+                        let: { idArtist: "$_id" },
+                        pipeline: [{ $match: { $expr: { $eq: ['$idArtist', '$$idArtist'] } } }]
+                    }
+                },
+                {
+                    $match: {
+                        _id: ObjectId(id)
+                    }
+                },
+            ]).exec();
             return res.json({
-                message: type
+                message: artist
             })
         }
         catch (e) {

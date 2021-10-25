@@ -1,5 +1,6 @@
 require('dotenv').config();
 const Type = require('../models/TypeModel');
+const Song = require('../models/SongModel');
 const ObjectId = require('mongoose').Types.ObjectId
 class TypeController {
     async getAll(req, res) {
@@ -17,8 +18,25 @@ class TypeController {
     }
     async getByIdType(req, res) {
         try {
-            const {idType} = req.params;
-            const type = await Type.find({"idType": {"$in": idType}}).select();
+            const { id } = req.params;
+            let type = await Type.aggregate([
+                {
+
+                    $lookup: {
+                        from: 'songs',
+                        as: 'songs',
+                        let: { idType: "$_id" },
+                        pipeline: [{ $match: { $expr: { $eq: ['$idType', '$$idType'] } } }]
+                    }
+                },
+                {
+                    $match: {
+                        _id: ObjectId(id)
+                    }
+                },
+            ]).exec();
+            // let typeWithArtist = await type.find()
+            // .populate('idArtist', '_id name imageUri')
             return res.json({
                 message: type
             })

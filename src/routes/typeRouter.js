@@ -7,7 +7,7 @@ const TypeController = require('../controllers/TypeController');
 // })
 router.get('/', TypeController.getAll)
 //Geting one
-// router.get('/:id', SongController.getByIdSong)
+router.get('/:id', TypeController.getByIdType)
 
 
 //creating one
